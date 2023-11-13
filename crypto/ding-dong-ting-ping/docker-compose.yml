@@ -1,0 +1,10 @@
+version: '3'
+services:
+  ding-dong-ting-ping:
+    build: ./
+    ports:
+      - 11111:9999
+    environment:
+      FLAG: "CakeCTF{dongdingdongding-dingdong-dongdingdong-ding}"
+      PREFIX: "TING~DING~DONG~XD"
+    restart: unless-stopped

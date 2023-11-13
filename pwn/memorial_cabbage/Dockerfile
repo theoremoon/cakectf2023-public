@@ -1,0 +1,8 @@
+FROM ubuntu:22.04@sha256:b4b521bfcec90b11d2869e00fe1f2380c21cbfcd799ee35df8bd7ac09e6f63ea AS base
+WORKDIR /app
+COPY distfiles/cabbage run
+COPY challenge/flag.txt /flag.txt
+
+FROM pwn.red/jail
+COPY --from=base / /srv
+ENV JAIL_TIME=180 JAIL_CPU=100 JAIL_MEM=10M JAIL_TMP_SIZE=8192

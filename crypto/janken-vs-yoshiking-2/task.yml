@@ -1,0 +1,12 @@
+---
+name: janken vs yoshiking 2
+description: >
+  the newest version of janken-vs series is coming!
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{though_yoshiking_may_die_janken_will_never_perish}"
+author: theoremoon
+host: crypto.2023.cakectf.com
+port: 10555
+tags:
+  - crypto
+is_survey: false

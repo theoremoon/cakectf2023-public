@@ -1,0 +1,11 @@
+---
+name: "unicomp"
+description: >
+  <p>"unicomp" is <a href="https://en.wikipedia.org/wiki/Seccomp" target="_blank">seccomp</a> based on <a href="https://www.unicorn-engine.org/" target="_blank">unicorn emulator</a>.</p>
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{x86-64_a1l0ws_1ns7ruct10n_t0_b3_inf1nit3Ly_l0ng}"
+author: ptr-yudai
+host: others.2023.cakectf.com
+port: 10001
+tags:
+  - sandbox

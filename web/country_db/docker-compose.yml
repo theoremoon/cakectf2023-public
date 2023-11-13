@@ -1,0 +1,13 @@
+version: '3'
+services:
+  country_db:
+    build:
+      context: .
+      args:
+        - "FLAG=CakeCTF{b3_c4refUl_wh3n_y0U_u5e_JS0N_1nPut}"
+    ports:
+      - "8020:8080"
+    environment:
+      - UWSGI_INI=/app/uwsgi.ini
+      - LISTEN_PORT=8080
+    restart: unless-stopped

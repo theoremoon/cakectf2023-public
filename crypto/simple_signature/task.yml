@@ -1,0 +1,13 @@
+---
+name: simple signature
+description: >
+  It must be a piece of cake.
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{does_yoshiking_eat_cake_or_cat?}"
+author: theoremoon
+host: crypto.2023.cakectf.com
+port: 10444
+tags:
+  - crypto
+  - warmup
+is_survey: false

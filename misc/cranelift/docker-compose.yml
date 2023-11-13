@@ -1,0 +1,8 @@
+version: '3'
+services:
+  cranelift:
+    build: .
+    ports:
+      - "10000:5000"
+    privileged: true
+    restart: unless-stopped

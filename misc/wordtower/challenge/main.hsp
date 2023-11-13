@@ -1,0 +1,560 @@
+#runtime "hsp3_64"
+#packopt name "WordTower"
+#packopt hide 1
+#packopt icon "icon.ico"
+#epack "blocks.png"
+
+#include "words/animal.hsp"
+#define SCR_WIDTH  1000
+SCR_HEIGHT = 540
+#define OFFSET_BOX 60
+#define WORD_PER_LINE 15
+MAX_LETTERS = 7
+
+#define STAGE_1 0x314159
+#define STAGE_2 0x271828
+#define STAGE_3 0x141421
+#define STAGE_4 0x223620
+#define PI 3.14159265358979
+
+#define grectx(%1,%2,%3,%4) grect %1+%3/2,%2+%4/2,0,%3,%4
+
+#module "stopwatch"
+#deffunc m_break int param, var hour, var min, var sec, var milliSec  //  ミリ秒を時・分・秒・ミリ秒に分解する内部関数
+    hour     =  param / 3600000
+    min      = (param - hour * 3600000) / 60000
+    sec      = (param - hour * 3600000 - min * 60000) / 1000
+    milliSec =  param - hour * 3600000 - min * 60000 - sec * 1000
+    return
+#deffunc m_timScrSt int param   //  ストップウォッチ初期化・制限時間設定（ミリ秒）
+    dim gtime, 4, 3             // (時, 分, 秒, ミリ秒), (開始時間, 経過時間, 残り時間)
+    repeat 4
+        gtime(cnt, 0) = gettime(4 + cnt)
+    loop
+    if param > 0 {
+        timer  = param
+        timeUp = 0
+    } else {
+        timer  = 0
+        timeUp = 1
+    }
+    return
+#deffunc m_renew                //  ストップウォッチを更新
+    repeat 4
+        gtime(cnt, 1) = gettime(4 + cnt) - gtime(cnt, 0)
+    loop
+    passed = (gtime(0, 1) * 3600000) + (gtime(1, 1) * 60000) + (gtime(2, 1) * 1000) + gtime(3, 1)
+    if passed < 0 : passed += 24 * 60 * 60 * 1000
+    m_break passed, gtime(0, 1), gtime(1, 1), gtime(2, 1), gtime(3, 1)
+    if timer {
+        rest = timer - passed
+        if rest <= 0 {
+            timeUp = 1
+            rest   = 0
+        }
+        m_break rest, gtime(0, 2), gtime(1, 2), gtime(2, 2), gtime(3, 2)
+    }
+    return
+#defcfunc m_strTime             //  経過時間を文字列に変換して返す関数
+    return strf("%02d : ", gtime(0, 1)) + strf("%02d : ", gtime(1, 1)) + strf("%02d.", gtime(2, 1)) + strf("%03d", gtime(3, 1))
+#defcfunc m_strRest             //  残り時間を文字列に変換して返す関数
+    return strf("%02d : ", gtime(0, 2)) + strf("%02d : ", gtime(1, 2)) + strf("%02d.", gtime(2, 2)) + strf("%03d", gtime(3, 2))
+#defcfunc m_intTime int param   //  経過時間を返す関数
+    if (param < 0) | (3 < param) : return 0
+    return gtime(param, 1)
+#defcfunc m_intRest int param   //  残り時間を返す関数
+    if (param < 0) | (3 < param) : return 0
+    return gtime(param, 2)
+#defcfunc m_timeUp              //  制限時間を過ぎたか否かを返す関数
+    if timer : return timeUp
+    return -1
+#global
+
+#module
+#deffunc GetAnswers array answer, array list, int n
+	sdim answer, 1, n
+	repeat n
+		i = cnt
+		repeat
+			overlap = 0
+			chosen = list(rnd(length(list)))
+			repeat i
+				if answer(cnt) == chosen {
+					overlap = 1
+					break
+				}
+			loop
+			if overlap == 0: break
+		loop
+		answer(i) = chosen
+	loop
+	return
+
+#deffunc Shuffle array arr
+	mx = length(arr)
+	repeat mx
+		r        = cnt + rnd(mx - cnt)
+		temp     = arr(r)
+		arr(r)   = arr(cnt)
+		arr(cnt) = temp
+	loop
+	return
+
+#deffunc PutImageByCharCode int code
+	if code < 0x61 || code > 0x7d: return
+	celput 1, code - 0x61, 0.5, 0.5
+	return
+#global
+
+	buffer 1, 666, 555
+		picload "blocks.png", 1
+		celdiv 1, 111, 111
+	screen 0, ginfo(20), ginfo(21), 4, (ginfo(20)-SCR_WIDTH)/2, (ginfo(21)-SCR_HEIGHT)/2, SCR_WIDTH, SCR_HEIGHT
+	title "Word Tower"
+	font "Times New Roman", 32, 1
+	randomize
+
+	str_gameover = "gameover"
+	str_gameclear = "congratulations"
+
+	stage = STAGE_1
+	word_num = 3
+	time_limit = 2 * 60
+*NEW_STAGE
+	str_stage = "stage"
+	if stage == STAGE_1 {
+		str_stage += "{"
+	} else: if stage == STAGE_2 {
+		str_stage += "|"
+	} else: if stage == STAGE_3 {
+		str_stage += "}"
+	}
+	repeat
+		redraw 0
+		color $ff, $f8, $ef
+		boxf 0, 0, SCR_WIDTH, SCR_HEIGHT
+	
+		repeat 6
+			pos SCR_WIDTH / 2 - 6*30 + cnt*60, SCR_HEIGHT / 2 - 140
+			PutImageByCharCode peek(str_stage, cnt)
+		loop
+
+		color $10, $10, $10
+		pos SCR_WIDTH / 2 - 190, SCR_HEIGHT / 2 - 60
+		mes strf("#Words\t\t: %d", word_num)
+		mes strf("Max Length\t: %d", MAX_LETTERS)
+		mes strf("Time Limit\t: %02d:%02d", time_limit / 60, time_limit \ 60)
+		if stage == STAGE_3 {
+			mes "Wordlist\t\t: Impossible"
+		} else {
+			mes "Wordlist\t\t: Easy"
+		}
+
+		if SCR_WIDTH / 2 - 60 < mousex && mousex < SCR_WIDTH / 2 + 60 && 120 + SCR_HEIGHT / 2 - 20 < mousey && mousey < 120 + SCR_HEIGHT / 2 + 20 {
+			color $60, $20, $20
+			stick click, 0
+			if click & 256: break
+		} else {
+			color $40, $10, $10
+		}
+		boxf SCR_WIDTH / 2 - 60, 120 + SCR_HEIGHT / 2 - 20, SCR_WIDTH / 2 + 60, 120 + SCR_HEIGHT / 2 + 20
+		color $e0, $e0, $e0
+		pos SCR_WIDTH / 2 - 60 + 10, 120 + SCR_HEIGHT / 2 - 18
+		mes "START"
+
+		redraw 1
+		wait 1
+	loop
+
+	repeat
+		if word_num > 4 {
+			GetAnswers answer, animals, word_num
+		} else {
+			GetAnswers answer, easy_animals, word_num
+		}
+		char_num = 0
+		repeat word_num
+			char_num += strlen(answer(cnt))
+		loop
+		if char_num <= 30: break
+	loop
+
+	dim chars, char_num
+	i = 0
+	repeat word_num
+		word = answer(cnt)
+		repeat strlen(word)
+			chars(i) = peek(word, cnt)
+			i += 1
+		loop
+	loop
+	Shuffle chars
+
+	dim built_words, word_num, MAX_LETTERS
+	repeat word_num
+		word_id = cnt
+		repeat MAX_LETTERS
+			letter_id = cnt
+			built_words(word_id, letter_id) = -1
+		loop
+	loop
+
+	box_select = -1
+	word_select = -1
+	letter_select = -1
+	tick = 0
+
+	m_timScrSt time_limit * 1000
+
+*MAINLOOP
+	redraw 0
+	color $ff, $f8, $ef
+	boxf 0, 0, SCR_WIDTH, SCR_HEIGHT
+
+	m_renew
+	gosub *GAME_DRAW
+	gosub *GAME_TICK
+
+	redraw 1
+	wait 1
+	goto *MAINLOOP
+
+*GAMEOVER
+	redraw 0
+	color $ff, $f8, $ef
+	boxf 0, 0, SCR_WIDTH, SCR_HEIGHT
+
+	repeat 8
+		pos SCR_WIDTH / 2 - 8*30 + cnt*60, SCR_HEIGHT / 2 - 28
+		PutImageByCharCode peek(str_gameover, cnt)
+	loop
+
+	redraw 1
+	wait 1
+	goto *GAMEOVER
+
+*GAME_TICK
+	action_taken = 0
+	stick click, 0
+	if click & 256 {
+		repeat word_num
+			word_id = cnt
+			posy = OFFSET_BOX + 70 * 2 + 40 + cnt * 94
+			repeat MAX_LETTERS
+				letter_id = cnt
+				posx = 12 + 65*cnt
+				if mousex <= posx || posx + 56 <= mousex || mousey <= posy || posy + 56 <= mousey: continue
+
+				if box_select >= 0 {
+					// Put from letter box
+					if built_words(word_id, letter_id) == -1 {
+						// Put new letter
+						built_words(word_id, letter_id) = chars(box_select)
+						chars(box_select) = -1
+					} else {
+						// Swap letter
+						c = chars(box_select)
+						chars(box_select) = built_words(word_id, letter_id)
+						built_words(word_id, letter_id) = c
+					}
+					action_taken = 1
+					box_select = -1
+				} else: if word_select >= 0 && letter_select >= 0 {
+					// Put from words
+					if built_words(word_id, letter_id) == -1 {
+						// Put new letter
+						built_words(word_id, letter_id) = built_words(word_select, letter_select)
+						built_words(word_select, letter_select) = -1
+					} else: if word_id == word_select && letter_id == letter_select {
+						// Remove letter
+						repeat char_num
+							if chars(cnt) == -1 {
+								chars(cnt) = built_words(word_select, letter_select)
+								break
+							}
+							if cnt == char_num - 1 {
+								dialog "Cheat detected", 1, "Word Tower"
+							}
+						loop
+						built_words(word_select, letter_select) = -1
+					} else {
+						// Swap letter
+						c = built_words(word_select, letter_select)
+						built_words(word_select, letter_select) = built_words(word_id, letter_id)
+						built_words(word_id, letter_id) = c
+					}
+					action_taken = 1
+					word_select = -1
+					letter_select = -1
+				} else: if built_words(word_id, letter_id) >= 0 {
+					// Click to move letter
+					action_taken = 1
+					word_select = word_id
+					letter_select = letter_id
+				}
+				break
+			loop
+			if action_taken: break
+		loop
+
+		x = 0
+		y = 0
+		repeat char_num
+			if chars(cnt) < 0: continue
+			x = cnt \ WORD_PER_LINE
+			y = cnt / WORD_PER_LINE
+			// Click letter box
+			if 24 + x*64 < mousex && mousex < 24 + x*64 + 55 && OFFSET_BOX + y*64 < mousey && mousey < OFFSET_BOX + y*64 + 55 {
+				if word_select >= 0 && letter_select >= 0 {
+					// Put from words
+					if chars(cnt) == -1 {
+						// Put new letter
+						built_words(word_id, letter_id) = built_words(word_select, letter_select)
+						built_words(word_select, letter_select) = -1
+						word_select = -1
+						letter_select = -1
+						action_taken = 1
+					} else {
+						// Error
+					}
+				} else {
+					box_select = cnt
+					action_taken = 1
+				}
+				break
+			}
+			if action_taken: break
+		loop
+
+		if SCR_WIDTH - 180 < mousex && mousex < SCR_WIDTH - 20 && SCR_HEIGHT - 64 < mousey && mousey < SCR_HEIGHT - 20 {
+			// Submit
+			repeat char_num
+				if chars(cnt) != -1 {
+					dialog "You must use all the letters.", 1, "Word Tower"
+					goto *SKIP_SUBMIT
+				}
+			loop
+
+			sdim submit_words, MAX_LETTERS+1, word_num
+			repeat word_num
+				word_id = cnt
+				len = -1
+				repeat MAX_LETTERS
+					if built_words(word_id, cnt) == -1 {
+						if len == -1: len = cnt
+					} else: if len != -1 {
+						dialog "Every word must be left aligned.", 1, "Word Tower"
+						goto *SKIP_SUBMIT
+					} else {
+						poke submit_words(word_id), cnt, built_words(word_id, cnt)
+					}
+					if len == -1 && cnt == MAX_LETTERS - 1: len = MAX_LETTERS
+				loop
+				if len == 0 {
+					dialog strf("You must fill all of the %d words.", word_num), 1, "Word Tower"
+					goto *SKIP_SUBMIT
+				}
+			loop
+
+			repeat word_num
+				correct = 0
+				word_id = cnt
+				repeat word_num
+					if submit_words(word_id) == answer(cnt) {
+						correct = 1
+						break
+					}
+				loop
+				if correct == 0 {
+					dialog "Wrong answer", 1, "Word Tower"
+					goto *GAMEOVER
+				}
+			loop
+
+			/* Stage clear */
+			dialog "Correct answer!", 0, "Word Tower"
+			if stage == STAGE_1 {
+				stage = STAGE_2
+				word_num = 4
+				SCR_HEIGHT = 660
+				time_limit = 3 * 60
+				width SCR_WIDTH, SCR_HEIGHT, (ginfo(20)-SCR_WIDTH)/2, (ginfo(21)-SCR_HEIGHT)/2
+			} else: if stage == STAGE_2 {
+				stage = STAGE_3
+				word_num = 5
+				MAX_LETTERS = 15
+				SCR_HEIGHT = 760
+				time_limit = 30
+				width SCR_WIDTH, SCR_HEIGHT, (ginfo(20)-SCR_WIDTH)/2, (ginfo(21)-SCR_HEIGHT)/2
+			} else: if stage == STAGE_3 {
+				stage = STAGE_4
+				goto *GAMECLEAR
+			} else {
+				dialog "Cheat detected", 1, "Word Tower"
+			}
+			goto *NEW_STAGE
+
+*SKIP_SUBMIT:
+		}
+
+		if action_taken == 0 {
+			box_select = -1
+			word_select = -1
+			letter_select = -1
+		}
+	}
+
+	if m_timeUp() == 1 {
+		dialog "Time up", 1, "Word Tower"
+		str_gameover = "timeover"
+		goto *GAMEOVER
+	}
+
+	if word_num < 3 || MAX_LETTERS < 7 || time_limit > 5*60 {
+		dialog "Cheat detected", 1, "Word Tower"
+		end
+	}
+
+	tick++
+	return
+
+*GAME_DRAW
+	/* Draw box */
+	color $74, $50, $30
+	boxf 0, 0, SCR_WIDTH, OFFSET_BOX + 70 * 2
+	color $ff, $f8, $ef
+	boxf 12, OFFSET_BOX - 12, SCR_WIDTH-12, OFFSET_BOX + 70 * 2 - 12
+
+	color $f0, $f0, $f0
+	pos 12, 6
+	mes "Letter Box"
+
+	repeat char_num
+		x = cnt \ WORD_PER_LINE
+		y = cnt / WORD_PER_LINE
+		pos 24 + x*64, OFFSET_BOX + y*64
+		PutImageByCharCode chars(cnt)
+	loop
+
+	if box_select >= 0 {
+		x = box_select \ WORD_PER_LINE
+		y = box_select / WORD_PER_LINE
+		gmode 3,,,128
+		color $00, $f0, $f0
+		grectx 24 + x*64, OFFSET_BOX + y*64, 56, 56
+		gmode 0
+	}
+
+	/* Draw words */
+	repeat word_num
+		word_id = cnt
+		color $10, $10, $10
+		pos 12, OFFSET_BOX + 70 * 2 + 6 + cnt * 94
+		mes strf("Animal %d", cnt + 1)
+
+		y = OFFSET_BOX + 70 * 2 + 40 + cnt * 94
+		repeat MAX_LETTERS
+			letter_id = cnt
+
+			if built_words(word_id, letter_id) == -1 {
+				if box_select >= 0 {
+					gmode 3,,,128
+					delta = 32.0 * sin(double(tick) / (4 * PI))
+					color $20 + delta, $20 + delta, $20 + delta
+					grectx 12+65*cnt, y, 56, 56
+					gmode 0
+				} else {
+					color $10, $10, $10
+					boxf 12+65*cnt, y, 12+65*cnt+56, y+56
+				}
+
+				color $f0, $f0, $f0
+				pos 32+65*cnt, y+12
+				mes "?"
+			} else {
+				pos 12+65*cnt, y
+				PutImageByCharCode built_words(word_id, letter_id)
+
+				if word_select == word_id && letter_select == letter_id {
+					gmode 3,,,128
+					color $00, $f0, $f0
+					grectx 12+65*cnt, y, 56, 56
+					gmode 0
+				}
+			}
+		loop
+	loop
+
+	/* Submit button */
+	if SCR_WIDTH - 180 < mousex && mousex < SCR_WIDTH - 20 && SCR_HEIGHT - 64 < mousey && mousey < SCR_HEIGHT - 20 {
+		color $60, $20, $20
+	} else {
+		color $40, $10, $10
+	}
+	boxf SCR_WIDTH - 180, SCR_HEIGHT - 64, SCR_WIDTH - 20, SCR_HEIGHT - 20
+	color $e0, $e0, $e0
+	pos SCR_WIDTH - 164, SCR_HEIGHT - 60
+	mes "SUBMIT"
+
+	/* Game status */
+	pos SCR_WIDTH - 90, 8
+	mes strf("%02d:%02d", m_intRest(1), m_intRest(2))
+
+	return
+
+*GAMECLEAR
+	store = "L}7sE"
+	dim flag, 38
+	color 99, 193, 40
+	pos 202, 128
+	flag(0) = ginfo(16), ginfo(17), ginfo(18)
+	color 96, 69, 11
+	flag(3) = ginfo(16), ginfo(17), ginfo(18)
+	color 193, 41, 109
+	flag(6) = ginfo(22), ginfo(23)
+	pos 62, 251
+	flag(8) = ginfo(22), ginfo(23)
+	flag(10) = ginfo(16), ginfo(17), ginfo(18)
+	pos 184, 16
+	color 154, 194, 78
+	flag(16) = ginfo(22), ginfo(23)
+	flag(13) = ginfo(16), ginfo(17), ginfo(18)
+	color 194, 172, 114
+	flag(18) = ginfo(16), ginfo(17), ginfo(18)
+	color 2, 255, 10
+	flag(21) = ginfo(16), ginfo(17), ginfo(18)
+	color 72, 156, 196
+	pos 78, 153
+	flag(24) = ginfo(16), ginfo(17), ginfo(18), 2, 70
+	flag(29) = ginfo(22), 195, ginfo(23)
+	flag(32) = peek(store, 0), peek(store, 2), 20, peek(store, 4), peek(store, 3), peek(store, 1)
+	key = stage
+	repeat length(flag) - 4
+		v = (flag(cnt) | (flag(cnt+1)<<8) | (flag(cnt+2)<<16) | (flag(cnt+3)<<24)) ^ key
+		key += 0x3776
+		flag(cnt) = v & 0xff
+		flag(cnt+1) = (v>>8) & 0xff
+		flag(cnt+2) = (v>>16) & 0xff
+		flag(cnt+3) = (v>>24) & 0xff
+	loop
+
+	sdim str_flag, 38
+	repeat length(flag)
+		poke str_flag, cnt, flag(cnt)
+	loop
+*GAMECLEAR_LOOP
+	redraw 0
+	color $ff, $f8, $ef
+	boxf 0, 0, SCR_WIDTH, SCR_HEIGHT
+
+	repeat 15
+		pos SCR_WIDTH/2 - 15*30 + cnt*60, SCR_HEIGHT/2 - 100
+		PutImageByCharCode peek(str_gameclear, cnt)
+	loop
+
+	color $10, $10, $10
+	pos SCR_WIDTH / 2 - 320, SCR_HEIGHT / 2
+	mes str_flag
+	redraw 1
+	wait 10
+	goto *GAMECLEAR_LOOP

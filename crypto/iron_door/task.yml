@@ -1,0 +1,12 @@
+---
+name: Iron Door
+description: >
+  Iron is harder than rock.
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{im_r3a11y_afraid_0f_truncating_hash_dig3st_13ading_unint3nd3d}"
+author: theoremoon
+host: crypto.2023.cakectf.com
+port: 10321
+tags:
+  - crypto
+is_survey: false

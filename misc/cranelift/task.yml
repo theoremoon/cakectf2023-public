@@ -1,0 +1,11 @@
+---
+name: "cranelift"
+description: >
+  <p>👀 JIT engine written in Rust?</p>
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{why_d0_th3y_4ll0w_l1bc_c4ll}"
+author: ptr-yudai
+host: others.2023.cakectf.com
+port: 10000
+tags:
+  - sandbox

@@ -1,0 +1,14 @@
+---
+name: "TOWFL"
+description: >
+  <p>
+  Do you speak the language of wolves?<br>
+  Prove your skill <a href="http://{host}:{port}/" target="_blank">here</a>!
+  </p>
+flag: "CakeCTF{b3_c4ut10us_1f_s3ss10n_1s_cl13nt_s1d3_0r_s3rv3r_s1d3}"
+author: ptr-yudai
+host: towfl.2023.cakectf.com
+port: 8888
+tags:
+  - cheat
+  - web

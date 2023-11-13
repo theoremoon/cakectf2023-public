@@ -1,0 +1,12 @@
+---
+name: "bofwow"
+description: >
+  <p><u>b</u>uffer <u>o</u>ver<u>f</u>low <u>w</u>ith<u>o</u>ut <u>w</u>in function</p>
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{1_h3r3by_c3rt1fy_th4t_y0u_h4v3_c0mpl3ted_3very7h1ng_4b0ut_ROP}"
+author: ptr-yudai
+host: bofwow.2023.cakectf.com
+port: 9003
+tags:
+  - pwn
+  - lunatic

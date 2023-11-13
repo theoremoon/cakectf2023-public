@@ -1,0 +1,11 @@
+---
+name: "bofww"
+description: >
+  <p><u>b</u>uffer <u>o</u>ver<u>f</u>low <u>w</u>ith <u>w</u>in function</p>
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{n0w_try_w1th0ut_w1n_func710n:)}"
+author: ptr-yudai
+host: bofww.2023.cakectf.com
+port: 9002
+tags:
+  - pwn

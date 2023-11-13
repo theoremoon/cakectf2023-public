@@ -1,0 +1,13 @@
+---
+name: "AdBlog"
+description: >
+  <p>
+  Post your article anonymously <a href="http://{host}:{port}/" target="_blank">here</a>!<br>
+  * Please <a href="http://{host}:8002/" target="_blank">report us</a> if you find any sensitive/harmful posts.
+  </p>
+flag: "CakeCTF{setTimeout_3v4lu4t3s_str1ng_4s_a_j4va5cr1pt_c0de}"
+author: ptr-yudai
+host: adblog.2023.cakectf.com
+port: 8001
+tags:
+  - web

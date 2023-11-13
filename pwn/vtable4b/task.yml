@@ -1,0 +1,13 @@
+---
+name: "vtable4b"
+description: >
+  <p>Do you understand what vtable is?</p>
+  <code>nc {host} {port}</code><br>
+  <small>* The flag exists somewhere in <code>/</code> directory.</small>
+flag: "CakeCTF{vt4bl3_1s_ju5t_4n_arr4y_0f_funct1on_p0int3rs}"
+author: ptr-yudai
+host: vtable4b.2023.cakectf.com
+port: 9000
+tags:
+  - warmup
+  - pwn

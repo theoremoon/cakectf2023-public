@@ -1,0 +1,12 @@
+---
+name: Cake Puzzle
+description: >
+  Someone cut a cake and scrambled.
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{wh0_at3_a_missing_pi3c3_0f_a_cak3}"
+author: theoremoon
+host: others.2023.cakectf.com
+port: 14001
+tags:
+  - rev
+is_survey: false

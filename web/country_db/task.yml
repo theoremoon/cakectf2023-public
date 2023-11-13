@@ -1,0 +1,14 @@
+---
+name: "Country DB"
+description: >
+  <p>
+  Do you know which country code 'CA' and 'KE' are for?<br>
+  Search country codes <a href="http://{host}:{port}/" target="_blank">here</a>!
+  </p>
+flag: "CakeCTF{b3_c4refUl_wh3n_y0U_u5e_JS0N_1nPut}"
+author: ptr-yudai
+host: countrydb.2023.cakectf.com
+port: 8020
+tags:
+  - web
+  - warmup

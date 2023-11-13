@@ -1,0 +1,10 @@
+version: '3'
+services:
+  janken_vs_yoshiking_2:
+    build: ./
+    ports:
+      - 10555:9999
+    environment:
+      FLAG: CakeCTF{though_yoshiking_may_die_janken_will_never_perish}
+    restart: on-failure:10
+    entrypoint: ""

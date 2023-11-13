@@ -1,0 +1,13 @@
+---
+name: "OpenBio 2"
+description: >
+  <p>
+  Share your Bio <a href="http://{host}:{port}/" target="_blank">here</a>!<br>
+  * Please <a href="http://{host}:8012/" target="_blank">report us</a> if you find any sensitive/harmful bio.
+  </p>
+flag: "CakeCTF{d0n'7_m0d1fy_4ft3r_s4n1tiz3}"
+author: ptr-yudai
+host: openbio2.2023.cakectf.com
+port: 8011
+tags:
+  - web

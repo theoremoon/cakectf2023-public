@@ -1,0 +1,9 @@
+---
+name: imgchk
+description: >
+  Ordinal flag checker but not for text.
+flag: "CakeCTF{fd408e00d5824d7220c4d624f894144e}"
+author: ptr-yudai
+tags:
+  - rev
+is_survey: false

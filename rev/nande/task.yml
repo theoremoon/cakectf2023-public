@@ -1,0 +1,12 @@
+---
+name: nande
+description: >
+  <p>What makes NAND gates popular?</p>
+  <small>For IDA Free user: You have to run IDA on Windows to load PDB.</small><br>
+  <small>For Ghidra user: If Ghidra fails to load PDB and shows invalid function names, just delete the function name and you'll see the correct ones.</small>
+flag: "CakeCTF{h2fsCHAo3xOsBZefcWudTa4}"
+author: ptr-yudai
+tags:
+  - rev
+  - warmup
+is_survey: false

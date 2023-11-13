@@ -1,0 +1,9 @@
+version: '3'
+services:
+  simple_signature:
+    build: ./
+    ports:
+      - 10444:9999
+    environment:
+      FLAG: "CakeCTF{does_yoshiking_eat_cake_or_cat?}"
+    restart: unless-stopped

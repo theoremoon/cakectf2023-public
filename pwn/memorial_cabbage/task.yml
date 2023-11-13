@@ -1,0 +1,11 @@
+---
+name: "Memorial Cabbage"
+description: >
+  <p>Memorial Cabbage Unit 3</p>
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{B3_c4r3fuL_s0m3_libc_fuNcT10n5_r3TuRn_5t4ck_p01nT3r}"
+author: ptr-yudai
+host: memorialcabbage.2023.cakectf.com
+port: 9001
+tags:
+  - pwn

@@ -1,0 +1,11 @@
+---
+name: ding-dong-ting-ping
+description: >
+  <code>nc {host} {port}</code>
+flag: "CakeCTF{dongdingdongding-dingdong-dongdingdong-ding}"
+author: yoshiking
+host: crypto.2023.cakectf.com
+port: 11111
+tags:
+  - crypto
+is_survey: false

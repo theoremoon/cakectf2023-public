@@ -1,0 +1,9 @@
+version: '3'
+services:
+  iron_door:
+    build: ./
+    ports:
+      - 10321:9999
+    environment:
+      FLAG: "CakeCTF{im_r3a11y_afraid_0f_truncating_hash_dig3st_13ading_unint3nd3d}"
+    restart: unless-stopped

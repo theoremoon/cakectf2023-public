@@ -1,0 +1,37 @@
+version: '3'
+services:
+  challenge:
+    build: ./distfiles/service
+    ports:
+      - "8001:8080"
+    links:
+      - redis
+    environment:
+      - UWSGI_INI=/app/uwsgi.ini
+      - LISTEN_PORT=8080
+    restart: unless-stopped
+
+  report:
+    build: ./distfiles/report
+    ports:
+      - "8002:8080"
+    links:
+      - redis
+      - crawler
+    environment:
+      - UWSGI_INI=/app/uwsgi.ini
+      - LISTEN_PORT=8080
+    restart: unless-stopped
+
+  crawler:
+    build: ./distfiles/crawler
+    links:
+      - challenge
+      - redis
+    environment:
+      - "flag=CakeCTF{setTimeout_3v4lu4t3s_str1ng_4s_a_j4va5cr1pt_c0de}"
+    restart: unless-stopped
+
+  redis:
+    build: ./distfiles/redis
+    restart: unless-stopped

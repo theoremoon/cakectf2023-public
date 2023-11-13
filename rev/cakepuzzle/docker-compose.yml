@@ -1,0 +1,11 @@
+version: '3'
+services:
+  cakepuzzle:
+    build: ./
+    ports:
+      - 14001:9999
+    ulimits:
+      nproc: 65535
+      core: 0
+    entrypoint: /etc/init.sh
+    restart: unless-stopped
